@@ -1,10 +1,36 @@
 import { v4 as uuidv4 } from 'uuid'
+const mysql = require('mysql')
+const config = require('./config/config')
+
+// MySQL
+const pool = mysql.createPool({
+    multipleStatements: true,
+    connectionLimit : 10,
+    host: config.db.host,
+    user: config.db.user,
+    password: config.db.password,
+    database: config.db.database
+})
 
 let users = []
 
 export const getUsers = (req, res) => {
-    console.log(users)
-    res.send(users)
+
+    pool.getConnection((err, connection) => {
+        if(err) throw err
+        console.log(`connected as id ${connection.threadId}`)
+
+        connection.query(`SELECT * from ${req.body}`, (err, rows) => {
+            connection.release() // return the connection to pool
+
+            if(!err) {
+                res.send(rows)
+            } else {
+                console.log(err)
+            }
+
+        })
+    })
 }
 
 export const createUser = (req, res) => {
