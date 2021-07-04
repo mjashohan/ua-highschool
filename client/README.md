@@ -1,6 +1,6 @@
-# client
+# ua-highschool
 
-> Front end of the web application
+> Fron end for DW project
 
 ## Build Setup
 

@@ -1,18 +1,83 @@
-import { v4 as uuidv4 } from 'uuid'
-const mysql = require('mysql')
-const config = require('./config/config')
-
-// MySQL
-const pool = mysql.createPool({
-    multipleStatements: true,
-    connectionLimit : 10,
-    host: config.db.host,
-    user: config.db.user,
-    password: config.db.password,
-    database: config.db.database
-})
+const uuidv4 = require('uuid')
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
+const db = require('../lib/db.js')
 
 let users = []
+
+export const signup = (req, res, next) => {
+    db.query(
+        `SELECT * FROM admin WHERE LOWER(username) = LOWER(${db.escape(req.body.username)})`,
+        (err, result) => {
+            if(result.length) {
+                return res.status(409).send({
+                    msg: 'This username is already taken!'
+                })
+            } else {
+                
+            }
+        }
+    )
+}
+
+export const login = (req, res, next) => {
+    db.query(
+        `SELECT * FROM admin WHERE username = ${db.escape(req.body.username)}`,
+        (err, result) => {
+            //user does not exist
+            if(err) {
+                throw err
+                return res.status(400).send({
+                    msg: err
+                })
+            }
+            if (!result.length) {
+                return res.status(401).send({
+                  msg: 'Username or password is incorrect!'
+                })
+              }
+              // check password
+                bcrypt.compare(
+                req.body.password,
+                result[0]['password'],
+                (bErr, bResult) => {
+                // wrong password
+                if (bErr) {
+                    throw bErr;
+                    return res.status(401).send({
+                    msg: 'Username or password is incorrect!'
+                    })
+          }
+
+          if (bResult) {
+            const token = jwt.sign({
+                username: result[0].username,
+                userId: result[0].id
+              },
+              'SECRETKEY', {
+                expiresIn: '7d'
+              }
+            )
+
+        }
+
+        return res.status(200).send({
+            msg: 'Logged in!',
+            token,
+            user: result[0]
+          });
+          return res.status(401).send({
+            msg: 'Username or password is incorrect!'
+          })
+        }
+      )
+     }
+    )
+}
+
+export const secretRoute = (req, res, next) => {
+    res.send("Welcome to your dashboard!")
+}
 
 export const getUsers = (req, res) => {
 
