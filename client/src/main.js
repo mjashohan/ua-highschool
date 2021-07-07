@@ -3,6 +3,7 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import {sync} from 'vuex-router-sync'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
@@ -13,11 +14,11 @@ import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 
 Vue.config.productionTip = false
-Axios.defaults.headers.common['Authorization'] = `Bearer ${store.state.token}`
+//Axios.defaults.headers.common['Authorization'] = `Bearer ${store.state.token}`
 Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
 Vue.use(Vuetify)
-//Vue.component(login, Login)
+sync(store, router)
 
 /* eslint-disable no-new */
 new Vue({

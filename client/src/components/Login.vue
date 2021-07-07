@@ -11,7 +11,7 @@
           <v-text-field
             label="Username"
             type="text"
-            v-model="text">
+            v-model="username">
           </v-text-field>
           <br />
           <v-text-field
@@ -23,7 +23,7 @@
           <div class="error" v-html="error" />
           <br />
           <v-btn color="#2196F3" style="color:white" @click="login">Log In</v-btn>
-          <p v-if="msg">{{ msg }}</p>
+         <!-- <p v-if="msg">{{ msg }}</p> -->
         </div>
       </div>
     </v-flex>
@@ -32,33 +32,30 @@
 </template>
 
 <script>
-import AuthService from '@/services/AuthService.js'
+import AuthenticationService from '@/services/AuthenticationService.js'
 export default {
-    data() {
-        return {
-            username: '',
-            password: '',
-            msg: ''
-        }
-    },
-     methods: {
-        async login() {
-            try {
-                const credentials = {
-                username: this.username,
-                password: this.password
-                };
-                const response = await AuthService.login(credentials);
-                this.msg = response.msg;
-                const token = response.token;
-                const user = response.user;
-                this.$store.dispatch('login', { token, user });
-                this.$router.push('/');
-                } catch (error) {
-                    this.msg = error.response.data.msg;
-            }
-        }
+  data () {
+    return {
+      username: '',
+      password: '',
+      error: null
     }
+  },
+  methods: {
+    async login () {
+      let response = await AuthenticationService.login({
+          username: this.username,
+          password: this.password
+        })
+      console.log(response.data)
+      const user = response.data.user
+      const token = response.data.token
+      
+      this.$store.dispatch('setToken', token)
+      this.$store.dispatch('setUser', user)
+      this.$router.push('/home')
+    }
+  }
 }
 </script>
 

@@ -1,46 +1,42 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import Axios from 'axios'
-import createPersistedState from 'vuex-persistedstate'
+
 Vue.use(Vuex)
-const getDefaultState = () => {
-  return {
-    token: '',
-    user: {}
-  }
-}
+
 export default new Vuex.Store({
   strict: true,
-  plugins: [createPersistedState()],
-  state: getDefaultState(),
+  state: {
+    token: null,
+    user: null,
+    isUserLoggedIn: false
+  },
   getters: {
     isLoggedIn: state => {
-      return state.token
+      return state.token;
     },
     getUser: state => {
-      return state.user
+      return state.user;
     }
   },
   mutations: {
-    SET_TOKEN: (state, token) => {
+    setToken (state, token) {
       state.token = token
+      if (token) {
+        state.isUserLoggedIn = true
+      } else {
+        state.isUserLoggedIn = false
+      }
     },
-    SET_USER: (state, user) => {
+    setUser (state, user) {
       state.user = user
-    },
-    RESET: state => {
-      Object.assign(state, getDefaultState())
     }
   },
   actions: {
-    login: ({ commit, dispatch }, { token, user }) => {
-      commit('SET_TOKEN', token)
-      commit('SET_USER', user)
-      // set auth header
-      Axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+    setToken ({commit}, token) {
+      commit('setToken', token)
     },
-    logout: ({ commit }) => {
-      commit('RESET', '')
+    setUser ({commit}, user) {
+      commit('setUser', user)
     }
   }
-});
+})
